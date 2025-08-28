@@ -1,12 +1,12 @@
 const express = require('express')
 const config = require('./config/config')
-const port = config.port
-const cors = require('cors')
-const app = express()
+const setupMiddlewares = require('./middlewares')
 
-app.use(express.urlencoded({extended: true}))
-app.use(express.json())
-app.use(cors())
+const app = express()
+const port = config.port
+
+// Apply all middleware
+setupMiddlewares(app)
 
 
 
