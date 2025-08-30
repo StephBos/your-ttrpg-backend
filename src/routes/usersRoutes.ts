@@ -1,6 +1,6 @@
-const express = require('express')
+import express from 'express'
 import type { Request, Response } from 'express'
-const { getAllUserNames } = require('../controllers/usersControllers')
+import { getAllUserNames } from '../controllers/usersControllers.js'
 
 const router = express.Router()
 
@@ -14,4 +14,4 @@ router.get('/', async (req: Request, res: Response) => {
     }
 })
 
-module.exports = router
+export default router

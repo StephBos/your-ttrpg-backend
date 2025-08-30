@@ -1,8 +1,8 @@
-const express = require('express')
-const config = require('./config/config')
-const setupMiddlewares = require('./middlewares')
-const usersRoutes = require('./routes/usersRoutes')
-const { testConnection } = require('./config/database')
+import express from 'express'
+import config from './config/config.js'
+import setupMiddlewares from './middlewares/index.js'
+import usersRoutes from './routes/usersRoutes.js'
+import { testConnection } from './config/database.js'
 const app = express()
 const port = config.port
 

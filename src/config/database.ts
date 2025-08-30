@@ -1,6 +1,6 @@
-const { Pool } = require('pg')
-const config = require('./config')
-const dotenv = require('dotenv')
+import { Pool } from 'pg'
+import config from './config.js'
+import dotenv from 'dotenv'
 
 // Debug: Log database configuration (remove password for security)
 console.log('Database config:', {
@@ -66,7 +66,7 @@ async function getClient() {
   return await pool.connect();
 }
 
-module.exports = {
+export {
   query,
   getClient,
   testConnection,

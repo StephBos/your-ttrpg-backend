@@ -1,6 +1,10 @@
-const { query } = require('../config/database')
+import { query } from '../config/database.js'
 
-async function getAllUserNames() {
+interface UserRow {
+    userName: string;
+}
+
+async function getAllUserNames(): Promise<string[]> {
     console.info('Getting all user names')
     
     try {
@@ -12,11 +16,10 @@ async function getAllUserNames() {
     }
 }
 
-function convertToArray(resultObjs: any){
-    const userNames: string[] = resultObjs.map((u: any) => u.userName)
+function convertToArray(resultObjs: UserRow[]): string[] {
+    const userNames: string[] = resultObjs.map((u: UserRow) => u.userName)
+    console.info("Returning: ", userNames)
     return userNames
 }
 
-module.exports = {
-    getAllUserNames
-}
+export { getAllUserNames }
