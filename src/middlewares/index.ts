@@ -1,7 +1,7 @@
-const helmet = require('helmet')
-const cors = require('cors')
-const express = require('express')
-const morgan = require('morgan')
+import helmet from 'helmet'
+import cors from 'cors'
+import express from 'express'
+import morgan from 'morgan'
 import type { Application } from 'express'
 
 
@@ -20,4 +20,4 @@ const setupMiddlewares = (app: Application) => {
     app.use(morgan('combined'));
 }
 
-module.exports = setupMiddlewares
+export default setupMiddlewares
