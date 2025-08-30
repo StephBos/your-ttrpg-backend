@@ -1,7 +1,6 @@
 const express = require('express')
 const config = require('./config/config')
 const setupMiddlewares = require('./middlewares')
-
 const app = express()
 const port = config.port
 
