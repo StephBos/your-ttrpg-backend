@@ -18,6 +18,6 @@ const setupMiddlewares = (app: Application) => {
     
     // Logging
     app.use(morgan('combined'));
-};
+}
 
-module.exports = setupMiddlewares;
+module.exports = setupMiddlewares
