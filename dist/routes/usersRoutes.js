@@ -1,13 +1,22 @@
 import express from 'express';
-import { getAllUserNames } from '../controllers/usersControllers.js';
+import { getAllUserNames, checkUsername } from '../controllers/usersControllers.js';
 const router = express.Router();
 router.get('/', async (req, res) => {
-    console.log('Users route hit!');
+    console.info('Getting all usernames');
     try {
-        const userNames = await getAllUserNames();
-        res.json(userNames);
+        res.json(await getAllUserNames());
     }
     catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+router.get('/:username', async (req, res) => {
+    try {
+        const result = await checkUsername(req.params.username);
+        res.json(result);
+    }
+    catch (error) {
+        console.error('Error in checkUsername route:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

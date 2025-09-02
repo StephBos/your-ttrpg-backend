@@ -1,3 +1,4 @@
 declare function getAllUserNames(): Promise<string[]>;
-export { getAllUserNames };
+declare function checkUsername(username: string | undefined): Promise<boolean>;
+export { getAllUserNames, checkUsername };
 //# sourceMappingURL=usersControllers.d.ts.map
