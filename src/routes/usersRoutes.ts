@@ -18,7 +18,7 @@ router.get('/:username', async (req: Request, res: Response) => {
     console.info('checking username: ', req.params.username)
     try {
         const result = await checkUsername(req.params.username)
-        res.json(result)
+        res.json({available: result})
     } catch (error) {
         console.error('Error in checkUsername route:', error)
         res.status(500).json({error: 'Internal server error'})
