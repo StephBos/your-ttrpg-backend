@@ -1,6 +1,6 @@
 import express from 'express'
 import type { Request, Response } from 'express'
-import { getAllUserNames, checkUsername } from '../controllers/usersControllers.js'
+import { getAllUserNames, checkUsername, createUser } from '../controllers/usersControllers.js'
 
 const router = express.Router()
 
@@ -24,5 +24,23 @@ router.get('/:username', async (req: Request, res: Response) => {
         res.status(500).json({error: 'Internal server error'})
     }
 })
+
+router.post('/', async (req: Request, res: Response) => {
+    try {
+      const { username, email, password } = req.body;
+  
+      // validation example
+      if (!username || !email || !password) {
+        return res.status(400).json({ error: "All fields are required" });
+      }
+  
+      const newUser = await createUser(username, email, password);
+      res.status(201).json(newUser)
+    } catch (error) {
+      console.error("Error creating user:", error);
+      res.status(500).json({ error: "Internal server error" })
+    }
+  })
+
 
 export default router
