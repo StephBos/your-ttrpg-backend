@@ -33,5 +33,9 @@ function convertToArray(resultObjs: UserRow[]): string[] {
     return userNames
 }
 
-export { getAllUserNames, checkUsername }
+function createUser(username: string, email: string, password: string){
+    console.log('creating user.')
+}
+
+export { getAllUserNames, checkUsername, createUser }
 
