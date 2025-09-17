@@ -9,8 +9,7 @@ setupMiddlewares(app);
 app.use('/users', usersRoutes);
 testConnection().then((connected) => {
     if (!connected) {
-        console.error('Failed to connect to database. Exiting...');
-        process.exit(1);
+        console.warn('Failed to connect to database at startup. Continuing to run server; DB-backed routes may fail until DB is available.');
     }
     try {
         app.listen(port, () => {

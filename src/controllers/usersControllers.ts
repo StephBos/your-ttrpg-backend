@@ -20,7 +20,8 @@ async function getAllUserNames(): Promise<string[]> {
 async function checkUsername(username: string | undefined): Promise<boolean> {
     console.info('Checking username already in use')
     try {
-        const result = await query('SELECT "userName" FROM users WHERE "userName" = $1', [username?.toLowerCase()])
+        const result = await query('SELECT "username" FROM users WHERE "username" = $1', [username?.toLowerCase()])
+        console.log('result', result.rows.length)
         return result.rows.length > 0
     } catch (error) {
         console.error('Error checking username:', error)
