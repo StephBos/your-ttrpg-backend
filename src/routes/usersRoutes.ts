@@ -15,10 +15,10 @@ router.get('/', async (req: Request, res: Response) => {
 
 
 router.get('/:username', async (req: Request, res: Response) => {        
-    console.info('checking username: ', req.params.username)
+    console.info('Checking username: ', req.params.username)
     try {
         const result = await checkUsername(req.params.username)
-        res.json({available: result})
+        res.json({inUse: result})
     } catch (error) {
         console.error('Error in checkUsername route:', error)
         res.status(500).json({error: 'Internal server error'})
@@ -35,10 +35,10 @@ router.post('/', async (req: Request, res: Response) => {
       }
   
       const newUser = await createUser(username, email, password);
-      res.status(201).json(newUser)
+      return res.status(201).json(newUser)
     } catch (error) {
       console.error("Error creating user:", error);
-      res.status(500).json({ error: "Internal server error" })
+      return res.status(500).json({ error: "Internal server error" })
     }
   })
 

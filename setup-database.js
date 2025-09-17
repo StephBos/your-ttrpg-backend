@@ -49,12 +49,28 @@ async function setupDatabase() {
           id SERIAL PRIMARY KEY,
           userName VARCHAR(255) NOT NULL,
           email VARCHAR(255) UNIQUE,
+          password VARCHAR(255),
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
       `);
       
       console.log('Users table created successfully!');
       
+      // Ensure password column exists (for existing DBs)
+      await appClient.query(`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_name = 'users' AND column_name = 'password'
+          ) THEN
+            ALTER TABLE users ADD COLUMN password VARCHAR(255);
+          END IF;
+        END
+        $$;
+      `);
+
       // Insert sample data
       const result = await appClient.query('SELECT COUNT(*) FROM users');
       if (parseInt(result.rows[0].count) === 0) {

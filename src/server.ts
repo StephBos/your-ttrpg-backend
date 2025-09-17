@@ -15,10 +15,9 @@ app.use('/users', usersRoutes)
 // Test database connection on startup
 testConnection().then((connected: boolean) => {
     if (!connected) {
-        console.error('Failed to connect to database. Exiting...')
-        process.exit(1)
+        console.warn('Failed to connect to database at startup. Continuing to run server; DB-backed routes may fail until DB is available.')
     }
-    
+
     try {
         app.listen(port, () => {
             console.log(`Server is running on port ${port}`)

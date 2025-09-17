@@ -30,7 +30,8 @@ pool.on('connect', () => {
 
 pool.on('error', (err: any) => {
   console.error('Unexpected error on idle client', err);
-  process.exit(-1);
+  // Do not exit the process; log and allow the app to continue.
+  // The pool will attempt to recover on next usage.
 });
 
 // Function to test database connectivity
