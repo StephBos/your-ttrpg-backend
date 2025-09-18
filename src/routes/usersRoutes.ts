@@ -1,6 +1,6 @@
 import express from 'express'
 import type { Request, Response } from 'express'
-import { getAllUserNames, checkUsername, createUser } from '../controllers/usersControllers.js'
+import { getAllUserNames, checkUsername, createUser, checkEmail } from '../controllers/usersControllers.js'
 
 const router = express.Router()
 
@@ -27,17 +27,27 @@ router.get('/:username', async (req: Request, res: Response) => {
 
 router.post('/', async (req: Request, res: Response) => {
     try {
-      const { username, email, password } = req.body;
+      let { username, email, password } = req.body
+      username = username.trim().toLowerCase()
+      email = email.trim().toLowerCase()
   
-      // validation example
+      // Make sure all variables are present
       if (!username || !email || !password) {
-        return res.status(400).json({ error: "All fields are required" });
+        return res.status(400).json({ error: "All fields are required" })
       }
-  
-      const newUser = await createUser(username, email, password);
+
+      //Check if email is already in use
+      const emailInUse = await checkEmail(email)
+      if(emailInUse){
+        console.log('gonna send a 409')
+        return res.status(409).json({ success: false, error: "Email already in use" })
+      }
+
+      //Normalizing username and email in the pass
+      const newUser = await createUser(username, email, password)
       return res.status(201).json(newUser)
     } catch (error) {
-      console.error("Error creating user:", error);
+      console.error("Error creating user:", error)
       return res.status(500).json({ error: "Internal server error" })
     }
   })

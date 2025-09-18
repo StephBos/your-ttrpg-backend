@@ -20,7 +20,7 @@ async function getAllUserNames(): Promise<string[]> {
 async function checkUsername(username: string | undefined): Promise<boolean> {
     console.info('Checking username already in use')
     try {
-        const result = await query('SELECT "username" FROM users WHERE "username" = $1', [username?.toLowerCase()])
+        const result = await query('SELECT "username" FROM users WHERE "username" = $1', [username?.trim().toLowerCase()])
         console.log('result', result.rows.length)
         return result.rows.length > 0
     } catch (error) {
@@ -31,6 +31,11 @@ async function checkUsername(username: string | undefined): Promise<boolean> {
 
 async function createUser(username: string, email: string, password: string){
     console.info('Creating user with username: ', username, ' and email ', email)
+    const emailInUse = await checkEmail(email)
+    if(emailInUse){
+        console.error('Email is already in use')
+        return null
+    }
     const hashedPw = await argon2.hash(password)
 
     try {
@@ -46,6 +51,17 @@ async function createUser(username: string, email: string, password: string){
     }
 }
 
+async function checkEmail(email: string): Promise<boolean>{
+    console.info('Checking if email is already in use')
+    try{
+        const emailsInUse = await query('SELECT users.email from users where email = $1', [email])
+        return emailsInUse.rows.length > 0
+    } catch (error){
+        console.error('Error checking email: ', email, 'Error: ', error )
+        throw error
+    }
+}
+
 function convertToArray(resultObjs: UserRow[]): string[] {
     const userNames: string[] = resultObjs.map((u: UserRow) => u.userName)
     console.info("Returning: ", userNames)
@@ -54,5 +70,5 @@ function convertToArray(resultObjs: UserRow[]): string[] {
 
 
 
-export { getAllUserNames, checkUsername, createUser }
 
+export { getAllUserNames, checkUsername, createUser, checkEmail }

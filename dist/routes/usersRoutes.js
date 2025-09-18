@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllUserNames, checkUsername, createUser } from '../controllers/usersControllers.js';
+import { getAllUserNames, checkUsername, createUser, checkEmail } from '../controllers/usersControllers.js';
 const router = express.Router();
 router.get('/', async (req, res) => {
     console.info('Getting all usernames');
@@ -11,10 +11,10 @@ router.get('/', async (req, res) => {
     }
 });
 router.get('/:username', async (req, res) => {
-    console.info('checking username: ', req.params.username);
+    console.info('Checking username: ', req.params.username);
     try {
         const result = await checkUsername(req.params.username);
-        res.json({ available: result });
+        res.json({ inUse: result });
     }
     catch (error) {
         console.error('Error in checkUsername route:', error);
@@ -23,9 +23,16 @@ router.get('/:username', async (req, res) => {
 });
 router.post('/', async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        let { username, email, password } = req.body;
+        username = username.trim().toLowerCase();
+        email = email.trim().toLowerCase();
         if (!username || !email || !password) {
             return res.status(400).json({ error: "All fields are required" });
+        }
+        const emailInUse = await checkEmail(email);
+        if (emailInUse) {
+            console.log('gonna send a 409');
+            return res.status(409).json({ success: false, error: "Email already in use" });
         }
         const newUser = await createUser(username, email, password);
         return res.status(201).json(newUser);
