@@ -6,12 +6,18 @@ interface User {
     username: string
     email: string
     created_at: string
+    password: string
 }
 
 interface LoginResponse {
     valid: boolean
-    message: string
+    message?: string
     username?: string
 }
 
-export{UserRow, User, LoginResponse}
+interface ResetPasswordResponse {
+    success: boolean
+    message?: string
+}
+
+export{UserRow, User, LoginResponse, ResetPasswordResponse}

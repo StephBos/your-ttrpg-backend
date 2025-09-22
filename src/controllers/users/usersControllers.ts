@@ -1,7 +1,6 @@
 import { query } from '../../config/database.js'
 import argon2 from 'argon2'
-import type { User, UserRow, LoginResponse } from './users.js'
-import { error } from 'console'
+import type { User, UserRow, LoginResponse, ResetPasswordResponse } from './users.js'
 
 async function getAllUserNames(): Promise<string[]> {
     console.info('Getting all user names')
@@ -15,12 +14,15 @@ async function getAllUserNames(): Promise<string[]> {
     }
 }
 
-async function checkUsername(username: string | undefined): Promise<boolean> {
+async function checkUsernameOrEmail(usernameOrEmail: string): Promise<User> {
     console.info('Checking username already in use')
     try {
-        const result = await query('SELECT "username" FROM users WHERE "username" = $1', [username?.trim().toLowerCase()])
-        console.log('result', result.rows.length)
-        return result.rows.length > 0
+        const isEmail = usernameOrEmail.includes('@')
+        const usernameOrEmailQuery = isEmail
+            ? "SELECT id, created_at, username, password, email FROM users WHERE email = $1"
+            : "SELECT id, created_at, username, password, email FROM users WHERE username = $1"
+        const result = await query(usernameOrEmailQuery,[usernameOrEmail])
+        return result.rows[0]
     } catch (error) {
         console.error('Error checking username:', error)
         throw error
@@ -29,7 +31,7 @@ async function checkUsername(username: string | undefined): Promise<boolean> {
 
 async function createUser(username: string, email: string, password: string): Promise<User | null>{
     console.info('Creating user with username: ', username, ' and email ', email)
-    const emailInUse = await checkEmail(email)
+    const emailInUse = await checkUsernameOrEmail(email)
     if(emailInUse){
         console.error('Email is already in use')
         return null
@@ -60,34 +62,43 @@ async function checkEmail(email: string): Promise<boolean>{
     }
 }
 
-async function verifyLogin(userNameOrEmail: string, password: string): Promise<LoginResponse>{
-    console.log('usernameOrEmail', userNameOrEmail, 'password', password)
+async function verifyLogin(usernameOrEmail: string, password: string): Promise<LoginResponse>{
+    console.log('usernameOrEmail', usernameOrEmail, 'password', password)
     try{
-        const isEmail = userNameOrEmail.includes('@')
-        const usernameOrEmailQuery = isEmail
-            ? "SELECT * FROM users WHERE email = $1"
-            : "SELECT * FROM users WHERE username = $1"
-        const result = await query(usernameOrEmailQuery,[userNameOrEmail])
+        const result = await checkUsernameOrEmail(usernameOrEmail)
 
-        if(result.rows.length === 0){
+        if(!result){
             const dummyHash = "$argon2id$v=19$m=4096,t=3,p=1$AAAAAAAAAAAAAAAAAAAAAA$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"; 
             await argon2.verify(dummyHash, password)
             return {valid: false, message: 'Invalid username or password'}
         }
 
-        const user = result.rows[0]
-
-        const correctPassword = await argon2.verify(user.password, password)
+        const correctPassword = await argon2.verify(result.password, password)
         if(!correctPassword){
             return {valid: false, message: 'Invalid username or password'}
         }
 
-        return {valid: true, username: user.username}
+        return {valid: true, username: result.username}
     } catch(error){
         console.error("Login error:", error)
         throw error
     }
 }
+
+async function resetPasswordRequest(userNameOrEmail: string): Promise<ResetPasswordResponse>{
+    console.info('Checking if username or email exists for password reset:', userNameOrEmail)
+    try{
+        const result = await checkUsernameOrEmail(userNameOrEmail)
+        if(result){
+            
+        }
+        return {success: true, message: 'If the username or email exists, a reset link has been sent'}
+    } catch(error){
+        console.error("Error in resetPasswordRequest:", error)
+        throw error
+    }
+}
+    
 
 function convertToArray(resultObjs: UserRow[]): string[] {
     const userNames: string[] = resultObjs.map((u: UserRow) => u.userName)
@@ -98,4 +109,4 @@ function convertToArray(resultObjs: UserRow[]): string[] {
 
 
 
-export { getAllUserNames, checkUsername, createUser, checkEmail, verifyLogin }
+export { getAllUserNames, checkUsernameOrEmail, createUser, checkEmail, verifyLogin, resetPasswordRequest }
