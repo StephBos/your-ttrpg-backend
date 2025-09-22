@@ -2,7 +2,7 @@ import express from 'express'
 import type { Request, Response } from 'express'
 import {
   getAllUserNames,
-  checkUsername,
+  checkUsernameOrEmail,
   createUser,
   checkEmail,
   verifyLogin,
@@ -10,6 +10,7 @@ import {
 
 const router = express.Router()
 
+// Get all usernames
 router.get('/', async (req: Request, res: Response) => {
   console.info('Getting all usernames')
   try {
@@ -19,17 +20,19 @@ router.get('/', async (req: Request, res: Response) => {
   }
 })
 
+// Check if username is in use
 router.get('/:username', async (req: Request, res: Response) => {
   console.info('Checking username: ', req.params.username)
   try {
-    const result = await checkUsername(req.params.username)
-    res.json({ inUse: result })
+    const result = await checkUsernameOrEmail(req.params.username ?? '')
+    res.json({ inUse: result ? true : false })
   } catch (error) {
     console.error('Error in checkUsername route:', error)
     res.status(500).json({ error: 'Error checking username' })
   }
 })
 
+// Verify login
 router.post('/login', async (req: Request, res: Response) => {
   console.info('Verifying login')
   try {
@@ -41,6 +44,19 @@ router.post('/login', async (req: Request, res: Response) => {
   }
 })
 
+// Reset Password Request
+router.post('/resetRequest', async (req: Request, res: Response) => {
+  console.info('Resetting password')
+  try {
+    return res
+      .status(201)
+      .json(await resetPasswordRequest(req.body.usernameOrEmail))
+  } catch (error) {
+    res.status(500).json({ error: 'Error logging in' })
+  }
+})
+
+// Create new user
 router.post('/', async (req: Request, res: Response) => {
   try {
     let { username, email, password } = req.body
