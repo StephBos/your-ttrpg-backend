@@ -6,6 +6,7 @@ import {
   createUser,
   checkEmail,
   verifyLogin,
+  resetPasswordRequest
 } from '../controllers/users/usersControllers.js'
 
 const router = express.Router()
@@ -16,7 +17,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     res.json(await getAllUserNames())
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' })
+    res.status(500).json({ error: 'Error getting all usernames' })
   }
 })
 
@@ -52,7 +53,7 @@ router.post('/resetRequest', async (req: Request, res: Response) => {
       .status(201)
       .json(await resetPasswordRequest(req.body.usernameOrEmail))
   } catch (error) {
-    res.status(500).json({ error: 'Error logging in' })
+    res.status(500).json({ message: 'Error getting reset password link' })
   }
 })
 
