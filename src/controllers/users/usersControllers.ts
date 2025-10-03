@@ -1,6 +1,7 @@
 import { query } from '../../config/database.js'
 import argon2 from 'argon2'
 import type { User, UserRow, LoginResponse, ResetPasswordResponse } from './users.js'
+import crypto from 'crypto'
 
 async function getAllUserNames(): Promise<string[]> {
     console.info('Getting all user names')
@@ -88,9 +89,16 @@ async function verifyLogin(usernameOrEmail: string, password: string): Promise<L
 async function resetPasswordRequest(userNameOrEmail: string): Promise<ResetPasswordResponse>{
     console.info('Checking if username or email exists for password reset:', userNameOrEmail)
     try{
-        const result = await checkUsernameOrEmail(userNameOrEmail)
-        if(result){
+        const user = await checkUsernameOrEmail(userNameOrEmail)
+        if(user){
+            const { token, tokenHash } = makeResetToken()
             
+            await query(
+                'UPDATE password_resets SET token_hash = $1 WHERE id = $3',
+                [tokenHash, user.id]
+            )
+            
+            sendResetEmail(user.email, token)
         }
         return {success: true, message: 'If the username or email exists, a reset link has been sent'}
     } catch(error){
@@ -107,6 +115,16 @@ function convertToArray(resultObjs: UserRow[]): string[] {
 }
 
 
+function makeResetToken() {
+    const token = crypto.randomBytes(32).toString('hex')
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
+    return { token, tokenHash }
+}
 
+function sendResetEmail(email: string, token: string) {
+    const resetLink = `https://your-ttrpg.com/reset-password?token=${token}`
+    console.info(`Sending password reset email to ${email} with link: ${resetLink}`)
+    // Here you would integrate with an email service to send the actual email
+}
 
 export { getAllUserNames, checkUsernameOrEmail, createUser, checkEmail, verifyLogin, resetPasswordRequest }
