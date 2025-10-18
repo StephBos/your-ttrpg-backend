@@ -7,8 +7,21 @@ async function getAllUserNames(): Promise<string[]> {
     console.info('Getting all user names')
     
     try {
-        const result = await query('SELECT "userName" FROM users')
+        const result = await query('SELECT "username" FROM users')
+        console.log('Fetched user names:', result.rows)
         return convertToArray(result.rows)
+    } catch (error) {
+        console.error('Error fetching user names:', error)
+        throw error
+    }
+}
+
+async function getUserByUsername(username: string): Promise<User> {
+    console.info('Getting all user names')
+    
+    try {
+        const result = await query('SELECT * FROM users where username = $1', [username])
+        return result.rows[0]
     } catch (error) {
         console.error('Error fetching user names:', error)
         throw error
@@ -109,7 +122,7 @@ async function resetPasswordRequest(userNameOrEmail: string): Promise<ResetPassw
     
 
 function convertToArray(resultObjs: UserRow[]): string[] {
-    const userNames: string[] = resultObjs.map((u: UserRow) => u.userName)
+    const userNames: string[] = resultObjs.map((u: UserRow) => u.username)
     console.info("Returning: ", userNames)
     return userNames
 }
@@ -127,4 +140,4 @@ function sendResetEmail(email: string, token: string) {
     // Here you would integrate with an email service to send the actual email
 }
 
-export { getAllUserNames, checkUsernameOrEmail, createUser, checkEmail, verifyLogin, resetPasswordRequest }
+export { getAllUserNames, checkUsernameOrEmail, createUser, checkEmail, verifyLogin, resetPasswordRequest, getUserByUsername }

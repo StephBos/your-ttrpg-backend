@@ -1,5 +1,5 @@
 interface UserRow {
-    userName: string;
+    username: string;
 }
 
 interface User {
