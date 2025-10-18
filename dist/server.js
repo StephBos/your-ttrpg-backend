@@ -2,11 +2,15 @@ import express from 'express';
 import config from './config/config.js';
 import setupMiddlewares from './middlewares/index.js';
 import usersRoutes from './routes/usersRoutes.js';
+import rulesetRoutes from './routes/rulesetRoutes.js';
 import { testConnection } from './config/database.js';
 const app = express();
 const port = config.port;
+import path from 'path';
 setupMiddlewares(app);
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/users', usersRoutes);
+app.use('/rulesets', rulesetRoutes);
 testConnection().then((connected) => {
     if (!connected) {
         console.warn('Failed to connect to database at startup. Continuing to run server; DB-backed routes may fail until DB is available.');
