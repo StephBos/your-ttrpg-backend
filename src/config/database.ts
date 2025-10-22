@@ -1,6 +1,6 @@
 import { Pool } from 'pg'
 import config from './config.js'
-import dotenv from 'dotenv'
+import type { QueryResult } from 'pg'
 
 // Debug: Log database configuration (remove password for security)
 console.log('Database config:', {
@@ -49,16 +49,16 @@ async function testConnection() {
 }
 
 // Function to execute queries
-async function query(text: string, params?: any[]) {
+async function query(text: string, params?: any[]): Promise<QueryResult> {
   const start = Date.now();
   try {
-    const res = await pool.query(text, params);
-    const duration = Date.now() - start;
-    console.log('Executed query', { text, duration, rows: res.rowCount });
-    return res;
+    const res = await pool.query(text, params)
+    const duration = Date.now() - start
+    console.log('Executed query', { text, duration, rows: res.rowCount })
+    return res
   } catch (error) {
-    console.error('Query error:', error);
-    throw error;
+    console.error('Query error:', error)
+    throw error
   }
 }
 

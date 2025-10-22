@@ -4,21 +4,15 @@ import multer from 'multer'
 import type {MulterRequest} from '../types/multerRequest.js'
 import { createRuleset } from '../controllers/rulesets/rulesetsController.js'
 import path from 'path'
+import fs from 'fs'
+import { fileURLToPath } from 'url'
 
 const router = express.Router()
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/') // where files are saved
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname) // keep original extension
-    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${ext}`
-    cb(null, uniqueName)
-  }
-})
-
-const upload = multer({ storage })
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const memStorage = multer.memoryStorage()
+const upload = multer({ storage: memStorage })
 
 router.get('/', (req: Request, res: Response) => {
   res.send('Ruleset routes are working')
@@ -31,25 +25,35 @@ router.post('/', upload.single('backgroundImage'), async (req, res) => {
   console.info('Creating new ruleset:', typedReq.body)
 
   try {
-    const { username, title, description, game, createdAt } = typedReq.body
-    const backgroundImageUrl = typedReq.file
-      ? `http://localhost:3000/uploads/${typedReq.file.filename}`
-      : null
+    const { username, title, description, game, createdAt, url } = typedReq.body
 
-    if (!username || !game || !title) {
+    const filename = typedReq.file ? typedReq.file.originalname : null
+
+    if (!username || !game || !title || !url) {
       return res
         .status(400)
-        .json({ error: 'Username, game, and title are required fields' })
+        .json({ error: 'Username, game, url and title are required fields' })
     }
-    console.log('username:', username)
+
+    const backgroundImageUrl = typedReq.file
+      ? `http://localhost:3000/uploads/${filename}`
+      : null
+    
     const newRuleset = await createRuleset(
       username,
       title,
       backgroundImageUrl,
       description,
       game,
-      createdAt
+      createdAt,
+      url
     )
+
+    if (typedReq.file && newRuleset.valid && filename) {
+      console.info('Saving uploaded background image file')
+      const uploadDir = path.join(__dirname, '../../uploads')
+      fs.writeFileSync(path.join(uploadDir, filename), typedReq.file.buffer)
+    }
 
     res.status(201).json(newRuleset)
   } catch (error) {
