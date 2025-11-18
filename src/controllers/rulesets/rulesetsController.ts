@@ -1,6 +1,32 @@
 import { query } from '../../config/database.js'
 import { getUserByUsername } from '../users/usersControllers.js'
-import type { CreateRulesetResponse } from './rulesets.js'
+import type { CreateRulesetResponse, Ruleset } from './rulesets.js'
+
+async function getRulesetsByUsername(username: string): Promise<Ruleset[]> {
+
+   const user = await getUserByUsername(username)
+
+   if (!user) {
+      console.error('User does not exist: ', username)
+      return []
+   }
+
+   try {
+      const rulesetsResult = await query(
+         'SELECT id, title, background_image_url, created_at, description, game, url FROM rulesets WHERE user_id = $1',
+         [user.id]
+      )
+
+      console.log('Fetched rulesets for user:', username, rulesetsResult.rows)
+
+      
+
+      return rulesetsResult.rows
+   } catch (error) {
+      console.error('Error fetching rulesets for user:', username, ' error: ', error)
+      throw error
+   }
+}
 
 async function createRuleset(
    username: string,
@@ -45,4 +71,4 @@ async function checkUrl(url: string, userId: number): Promise<boolean> {
    return (check.rowCount ?? 0) > 0
 }
 
-export { createRuleset }
+export { createRuleset, getRulesetsByUsername }

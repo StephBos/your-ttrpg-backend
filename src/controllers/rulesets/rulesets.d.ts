@@ -4,4 +4,14 @@ interface CreateRulesetResponse {
     url?: string
 }
 
-export{CreateRulesetResponse}
+interface Ruleset {
+    id: number
+    title: string
+    background_image_url: string | null
+    created_at: string
+    description: string
+    game: string
+    url: string
+}
+
+export{CreateRulesetResponse, Ruleset}

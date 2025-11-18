@@ -17,7 +17,7 @@ async function getAllUserNames(): Promise<string[]> {
 }
 
 async function getUserByUsername(username: string): Promise<User> {
-    console.info('Getting all user names')
+    console.info('Getting username: ', username)
     
     try {
         const result = await query('SELECT * FROM users where username = $1', [username])
