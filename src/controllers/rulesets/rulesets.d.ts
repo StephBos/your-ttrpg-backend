@@ -11,7 +11,7 @@ interface Ruleset {
     created_at: string
     description: string
     game: string
-    url: string
+    slug: string
 }
 
 export{CreateRulesetResponse, Ruleset}

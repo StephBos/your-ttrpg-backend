@@ -13,11 +13,11 @@ async function getRulesetsByUsername(username: string): Promise<Ruleset[]> {
 
    try {
       const rulesetsResult = await query(
-         'SELECT id, title, background_image_url, created_at, description, game, url FROM rulesets WHERE user_id = $1',
+         'SELECT id, title, background_image_url, created_at, description, game, slug FROM rulesets WHERE user_id = $1',
          [user.id]
       )
 
-      console.log('Fetched rulesets for user:', username, rulesetsResult.rows)
+      console.info('Fetched rulesets for user:', username, rulesetsResult.rows)
 
       
 
